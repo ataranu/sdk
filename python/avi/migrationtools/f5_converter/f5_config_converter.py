@@ -35,12 +35,13 @@ merge_object_mapping = {
 # Creating f5 object for util library.
 conv_utils = F5Util()
 
+
 def convert(f5_config, output_dir, vs_state, input_dir, version,
             object_merge_check, controller_version, report_name, prefix,
             con_snatpool, user_ignore, profile_path, tenant='admin',
             cloud_name='Default-Cloud', keypassphrase=None,
             vs_level_status=False, vrf=None, segroup=None,
-            custom_mappings=None, partition_mapping=None):
+            custom_mappings=None):
 
     """
     Converts f5 config to avi config pops the config lists for conversion of
@@ -70,7 +71,7 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
 
     avi_config_dict = {}
     sys_dict = {}
-    partition_mapping_temp = {}
+    partition_vs_mapping = {}
 
     try:
         # load the yaml file attribute in f5_attributes.
@@ -120,7 +121,7 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
                                           vs_state, user_ignore,
                         tenant, cloud_name, controller_version,
                         merge_object_mapping, sys_dict, vrf, segroup,
-                                            partition_mapping_temp)
+                                            partition_vs_mapping)
         dg_conv = DataGroupConfigConv.get_instance(
             version, prefix, merge_object_mapping, f5_attributes)
         dg_conv.convert(f5_config, avi_config_dict, user_ignore,
@@ -268,4 +269,4 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
                 avi_config_dict[key])))
             print 'Total Objects of %s : %s' % (key, len(
                 avi_config_dict[key]))
-    return avi_config_dict, partition_mapping_temp
+    return avi_config_dict, partition_vs_mapping

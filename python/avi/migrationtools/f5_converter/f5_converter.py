@@ -82,7 +82,6 @@ class F5Converter(AviConverter):
         # Support for vrf ref and segroup ref
         self.vrf = args.vrf
         self.segroup = args.segroup
-        self.partition_mapping = args.partition_vs_mapping
 
         # Created f5 util object.
         self.conversion_util = F5Util()
@@ -212,8 +211,7 @@ class F5Converter(AviConverter):
             self.controller_version, report_name, self.prefix,
             self.con_snatpool, user_ignore, self.profile_path,
             self.tenant, self.cloud_name, self.f5_passphrase_file,
-            self.vs_level_status, self.vrf, self.segroup, custom_mappings,
-            self.partition_mapping)
+            self.vs_level_status, self.vrf, self.segroup, custom_mappings)
 
         avi_config_dict["META"] = self.meta(self.tenant,
                                             self.controller_version)
@@ -553,10 +551,6 @@ if __name__ == "__main__":
     parser.add_argument('--vs_level_status', action='store_true',
                         help='Add columns of vs reference and overall skipped '
                              'settings in status excel sheet')
-    parser.add_argument('--partition_vs_mapping',
-            help='Mapping of partitions if partition in F5 is not the same as avi '
-             'tenant',
-        default={})
 
     
 

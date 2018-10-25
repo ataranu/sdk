@@ -82,6 +82,7 @@ class F5Converter(AviConverter):
         # Support for vrf ref and segroup ref
         self.vrf = args.vrf
         self.segroup = args.segroup
+        self.partition_mapping = args.partition_vs_mapping
 
         # Created f5 util object.
         self.conversion_util = F5Util()
@@ -205,13 +206,14 @@ class F5Converter(AviConverter):
         self.dict_merge(f5_defaults_dict, f5_config_dict)
         f5_config_dict = f5_defaults_dict
         report_name = os.path.splitext(os.path.basename(source_file.name))[0]
-        avi_config_dict = f5_config_converter.convert(
+        avi_config_dict, part_mapping = f5_config_converter.convert(
             f5_config_dict, output_dir, self.vs_state, input_dir,
             self.f5_config_version, self.object_merge_check,
             self.controller_version, report_name, self.prefix,
             self.con_snatpool, user_ignore, self.profile_path,
             self.tenant, self.cloud_name, self.f5_passphrase_file,
-            self.vs_level_status, self.vrf, self.segroup, custom_mappings)
+            self.vs_level_status, self.vrf, self.segroup, custom_mappings,
+            self.partition_mapping)
 
         avi_config_dict["META"] = self.meta(self.tenant,
                                             self.controller_version)
@@ -226,7 +228,8 @@ class F5Converter(AviConverter):
         if self.create_ansible:
             avi_traffic = AviAnsibleConverter(
                 avi_config, output_dir, self.prefix, self.not_in_use,
-                test_vip=self.test_vip, skip_types=self.ansible_skip_types)
+                test_vip=self.test_vip, skip_types=self.ansible_skip_types,
+                partitions=part_mapping)
             avi_traffic.write_ansible_playbook(
                 self.f5_host_ip, self.f5_ssh_user, self.f5_ssh_password, 'f5')
         if self.option == 'auto-upload':
@@ -550,6 +553,10 @@ if __name__ == "__main__":
     parser.add_argument('--vs_level_status', action='store_true',
                         help='Add columns of vs reference and overall skipped '
                              'settings in status excel sheet')
+    parser.add_argument('--partition_vs_mapping',
+            help='Mapping of partitions if partition in F5 is not the same as avi '
+             'tenant',
+        default={})
 
     
 

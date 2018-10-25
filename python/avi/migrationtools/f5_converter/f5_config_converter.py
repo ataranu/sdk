@@ -40,7 +40,8 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
             con_snatpool, user_ignore, profile_path, tenant='admin',
             cloud_name='Default-Cloud', keypassphrase=None,
             vs_level_status=False, vrf=None, segroup=None,
-            custom_mappings=None):
+            custom_mappings=None, partition_mapping=None):
+
     """
     Converts f5 config to avi config pops the config lists for conversion of
     each type from f5 config and remaining marked as skipped in the
@@ -69,6 +70,8 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
 
     avi_config_dict = {}
     sys_dict = {}
+    partition_mapping_temp = {}
+
     try:
         # load the yaml file attribute in f5_attributes.
         f5_attributes = conv_const.init(version)
@@ -113,10 +116,11 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
 
         vs_conv = VSConfigConv.get_instance(version, f5_attributes, prefix,
                                             con_snatpool, custom_mappings)
-        vs_conv.convert(f5_config, avi_config_dict, vs_state, user_ignore,
+        vs_conv.convert(f5_config, avi_config_dict,
+                                          vs_state, user_ignore,
                         tenant, cloud_name, controller_version,
-                        merge_object_mapping, sys_dict, vrf, segroup)
-
+                        merge_object_mapping, sys_dict, vrf, segroup,
+                                            partition_mapping_temp)
         dg_conv = DataGroupConfigConv.get_instance(
             version, prefix, merge_object_mapping, f5_attributes)
         dg_conv.convert(f5_config, avi_config_dict, user_ignore,
@@ -264,4 +268,4 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
                 avi_config_dict[key])))
             print 'Total Objects of %s : %s' % (key, len(
                 avi_config_dict[key]))
-    return avi_config_dict
+    return avi_config_dict, partition_mapping_temp

@@ -40,9 +40,21 @@ class VSConfigConv(object):
                                sys_dict):
         pass
 
+    def create_partition_mapping(self, f5_vs, vs_name):
+        dest = f5_vs['destination']
+        part = dest.split('/')[-2]
+        vip = dest.split('/')[-1]
+        p_mapping = {
+            vip: {
+                'vs_name': vs_name.split('/')[-1],
+                'partition': part
+            }
+        }
+        return p_mapping
+
     def convert(self, f5_config, avi_config, vs_state, user_ignore, tenant,
                 cloud_name, controller_version, merge_object_mapping, sys_dict,
-                vrf=None, segroup=None):
+                vrf=None, segroup=None, partition_mapping=None):
         """
 
         :param f5_config: Parsed f5 config dict
@@ -82,6 +94,9 @@ class VSConfigConv(object):
                     conv_utils.add_status_row('virtual', None, vs_name,
                                               final.STATUS_SKIPPED, msg)
                     continue
+
+                mapping = self.create_partition_mapping(f5_vs, vs_name)
+                partition_mapping.update(mapping)
                 vs_obj = self.convert_vs(
                     vs_name, f5_vs, vs_state, avi_config, f5_snat_pools,
                     user_ignore, tenant, cloud_name, controller_version,
